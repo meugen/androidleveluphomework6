@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
     <application
         android:allowBackup="true"
@@ -38,7 +37,7 @@
 
         <provider
             android:name=".providers.RssContentProvider"
-            android:authorities="ua.meugen.android.homework6"
+            android:authorities="ua.meugen.android.levelup.homework6"
             android:exported="false"
             android:syncable="true"/>
 

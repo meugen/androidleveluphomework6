@@ -30,15 +30,8 @@ public class RssContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] columns, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
-        SQLiteDatabase database = null;
-        try {
-            database = this.openHelper.getReadableDatabase();
-            return database.query(TABLE, columns, selection, selectionArgs, null, null, sortOrder);
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+        final SQLiteDatabase database = this.openHelper.getReadableDatabase();
+        return database.query(TABLE, columns, selection, selectionArgs, null, null, sortOrder);
     }
 
     @Nullable
@@ -50,16 +43,9 @@ public class RssContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
-        SQLiteDatabase database = null;
-        try {
-            database = this.openHelper.getWritableDatabase();
-            database.insertOrThrow(TABLE, null, values);
-            return null;
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+        final SQLiteDatabase database = this.openHelper.getWritableDatabase();
+        database.insertOrThrow(TABLE, null, values);
+        return null;
     }
 
     @Override
@@ -70,14 +56,7 @@ public class RssContentProvider extends ContentProvider {
     @Override
     public int update(@NonNull final Uri uri, final ContentValues values, final String selection,
                       final String[] selectionArgs) {
-        SQLiteDatabase database = null;
-        try {
-            database = this.openHelper.getWritableDatabase();
-            return database.update(TABLE, values, selection, selectionArgs);
-        } finally {
-            if (database != null) {
-                database.close();
-            }
-        }
+        final SQLiteDatabase database = this.openHelper.getWritableDatabase();
+        return database.update(TABLE, values, selection, selectionArgs);
     }
 }

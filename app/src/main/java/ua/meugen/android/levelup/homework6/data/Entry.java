@@ -63,13 +63,20 @@ public final class Entry {
 
     @Override
     public String toString() {
-        return "Entry{" +
-                "title='" + title + '\'' +
-                ", link='" + link + '\'' +
-                ", description='" + description + '\'' +
-                ", creator='" + creator + '\'' +
-                ", pubDate='" + pubDate + '\'' +
-                ", guid='" + guid + '\'' +
+        return "Entry{\n" +
+                "  title='" + cut(title) + "\'\n" +
+                "  link='" + cut(link) + "\'\n" +
+                "  description='" + cut(description) + "\'\n" +
+                "  creator='" + cut(creator) + "\'\n" +
+                "  pubDate='" + cut(pubDate) + "\'\n" +
+                "  guid='" + cut(guid) + "\'\n" +
                 '}';
+    }
+
+    private String cut(final String original) {
+        if (original == null || original.length() < 100) {
+            return original;
+        }
+        return original.substring(0, 100) + "...";
     }
 }

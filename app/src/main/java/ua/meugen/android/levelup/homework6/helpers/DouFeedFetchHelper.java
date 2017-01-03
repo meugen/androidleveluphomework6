@@ -85,12 +85,12 @@ public final class DouFeedFetchHelper {
     private Entry readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, null, ITEM_TAG);
 
-        String title = null;
-        String link = null;
-        String description = null;
-        String creator = null;
-        String pubDate = null;
-        String guid = null;
+        String title = "";
+        String link = "";
+        String description = "";
+        String creator = "";
+        String pubDate = "";
+        String guid = "";
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {

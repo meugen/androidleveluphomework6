@@ -25,7 +25,7 @@ public final class DouFeedStoreHelper {
 
     public DouFeedStoreHelper(final ContentProviderClient client) {
         this.client = client;
-        this.url = Uri.parse("content://ua.meugen.android.homework6/items");
+        this.url = Uri.parse("content://ua.meugen.android.levelup.homework6/items");
     }
 
     public void store(final List<Entry> entries, final SyncResult result) {
@@ -63,6 +63,7 @@ public final class DouFeedStoreHelper {
         values.put("link", entry.getLink());
         values.put("description", entry.getDescription());
         values.put("pub_date", entry.getPubDate());
+        values.put("creator", entry.getCreator());
         values.put("guid", entry.getGuid());
         return values;
     }
