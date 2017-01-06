@@ -4,9 +4,11 @@ import android.accounts.Account;
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 import ua.meugen.android.levelup.homework6.data.Entry;
 import ua.meugen.android.levelup.homework6.helpers.DouFeedFetchHelper;
@@ -24,6 +27,7 @@ public class SyncService extends Service {
 
     private static final String TAG = SyncService.class.getSimpleName();
 
+    private static final Object OBJ = new Object();
     private static SyncAdapter syncAdapter;
 
     @Override
@@ -31,8 +35,10 @@ public class SyncService extends Service {
         super.onCreate();
 
         Log.i(TAG, "onCreate()");
-        if (syncAdapter == null) {
-            syncAdapter = new SyncAdapter(this);
+        synchronized (OBJ) {
+            if (syncAdapter == null) {
+                syncAdapter = new SyncAdapter(this);
+            }
         }
     }
 
@@ -47,8 +53,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = SyncAdapter.class.getSimpleName();
     private static final String URL_STRING = "https://dou.ua/feed/";
 
+    private final ContentResolver resolver;
+
     SyncAdapter(final Context context) {
         super(context, true);
+        this.resolver = context.getContentResolver();
     }
 
     @Override
@@ -65,7 +74,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.i(TAG, items.toString());
 
             final DouFeedStoreHelper storeHelper
-                    = new DouFeedStoreHelper(client);
+                    = new DouFeedStoreHelper(this.resolver);
             storeHelper.store(items, result);
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);

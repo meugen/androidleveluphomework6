@@ -2,6 +2,7 @@ package ua.meugen.android.levelup.homework6.helpers;
 
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
@@ -16,24 +17,20 @@ import java.util.List;
 import java.util.Set;
 
 import ua.meugen.android.levelup.homework6.data.Entry;
+import ua.meugen.android.levelup.homework6.providers.RssContent;
 
 /**
  * @author meugen
  */
 
-public final class DouFeedStoreHelper {
+public final class DouFeedStoreHelper implements RssContent {
 
     private static final String TAG = DouFeedStoreHelper.class.getSimpleName();
 
-    private final static Uri URL_ITEMS
-            = Uri.parse("content://ua.meugen.android.levelup.homework6/items");
-    private final static Uri URL_GUIDS
-            = Uri.parse("content://ua.meugen.android.levelup.homework6/guids");
+    private final ContentResolver resolver;
 
-    private final ContentProviderClient client;
-
-    public DouFeedStoreHelper(final ContentProviderClient client) {
-        this.client = client;
+    public DouFeedStoreHelper(final ContentResolver resolver) {
+        this.resolver = resolver;
     }
 
     public void store(final List<Entry> entries, final SyncResult result) {
@@ -57,7 +54,7 @@ public final class DouFeedStoreHelper {
                 }
                 operations.add(op);
             }
-            this.client.applyBatch(operations);
+            this.resolver.applyBatch("ua.meugen.android.levelup.homework6", operations);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.stats.numIoExceptions++;
@@ -67,7 +64,7 @@ public final class DouFeedStoreHelper {
     private Set<String> fetchGuids() throws RemoteException {
         Cursor cursor = null;
         try {
-            cursor = this.client.query(URL_GUIDS, null, null, null, null);
+            cursor = this.resolver.query(URL_GUIDS, null, null, null, null);
 
             final Set<String> result = new HashSet<>();
             while (cursor.moveToNext()) {
