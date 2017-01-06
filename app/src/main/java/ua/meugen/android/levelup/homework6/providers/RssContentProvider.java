@@ -18,6 +18,8 @@ public class RssContentProvider extends ContentProvider {
 
     private static final String TABLE = "rss_items";
 
+    private static final String GUIDS_PATH = "guids";
+
     private RssContentOpenHelper openHelper;
 
     @Override
@@ -30,8 +32,16 @@ public class RssContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] columns, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
+        if (GUIDS_PATH.equals(uri.getLastPathSegment())) {
+            return getGuids();
+        }
         final SQLiteDatabase database = this.openHelper.getReadableDatabase();
         return database.query(TABLE, columns, selection, selectionArgs, null, null, sortOrder);
+    }
+
+    private Cursor getGuids() {
+        final SQLiteDatabase database = this.openHelper.getReadableDatabase();
+        return database.rawQuery("SELECT DISTINCT guid FROM " + TABLE, null);
     }
 
     @Nullable
@@ -44,8 +54,8 @@ public class RssContentProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull final Uri uri, final ContentValues values) {
         final SQLiteDatabase database = this.openHelper.getWritableDatabase();
-        database.insertOrThrow(TABLE, null, values);
-        return null;
+        final long id = database.insertOrThrow(TABLE, null, values);
+        return Uri.parse("content://ua.meugen.android.levelup.homework6/items/" + id);
     }
 
     @Override
