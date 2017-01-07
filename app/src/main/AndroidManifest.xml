@@ -54,8 +54,15 @@
                 android:resource="@xml/syncadapter"/>
         </service>
 
-        <activity android:name=".DetailActivity">
+        <activity android:name=".DetailActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
+
+        <service
+            android:name=".services.SyncJobService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
     </application>
 
 </manifest>

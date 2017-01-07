@@ -3,11 +3,15 @@ package ua.meugen.android.levelup.homework6.providers;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaCodec;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import java.util.regex.Pattern;
 
 import ua.meugen.android.levelup.homework6.helpers.RssContentOpenHelper;
 
@@ -18,6 +22,19 @@ import ua.meugen.android.levelup.homework6.helpers.RssContentOpenHelper;
 public class RssContentProvider extends ContentProvider implements RssContent {
 
     private static final String TABLE = "rss_items";
+
+    private static final int ITEMS = 1;
+    private static final int ITEM_ID = 2;
+    private static final int GUIDS = 3;
+
+    private static final UriMatcher MATCHER;
+
+    static {
+        MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+        MATCHER.addURI(AUTHORITY, "items", ITEMS);
+        MATCHER.addURI(AUTHORITY, "item/#", ITEM_ID);
+        MATCHER.addURI(AUTHORITY, "guids", GUIDS);
+    }
 
     private RssContentOpenHelper openHelper;
 
@@ -31,8 +48,11 @@ public class RssContentProvider extends ContentProvider implements RssContent {
     @Override
     public Cursor query(@NonNull final Uri uri, final String[] columns, final String selection,
                         final String[] selectionArgs, final String sortOrder) {
-        if (URL_GUIDS.equals(uri)) {
+        final int which = MATCHER.match(uri);
+        if (which == GUIDS) {
             return getGuids();
+        } else if (which == ITEM_ID) {
+            return getItem(uri);
         }
         final SQLiteDatabase database = this.openHelper.getReadableDatabase();
         final Cursor cursor = database.query(TABLE, columns, selection, selectionArgs,
@@ -44,6 +64,13 @@ public class RssContentProvider extends ContentProvider implements RssContent {
     private Cursor getGuids() {
         final SQLiteDatabase database = this.openHelper.getReadableDatabase();
         return database.rawQuery("SELECT DISTINCT guid FROM " + TABLE, null);
+    }
+
+    private Cursor getItem(final Uri uri) {
+        final String id = uri.getPathSegments().get(1);
+        final SQLiteDatabase database = this.openHelper.getReadableDatabase();
+        return database.rawQuery("SELECT title, description FROM " + TABLE + " WHERE id=?",
+                new String[] { id });
     }
 
     @Nullable
