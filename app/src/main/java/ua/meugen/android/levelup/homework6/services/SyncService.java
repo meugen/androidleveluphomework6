@@ -22,6 +22,7 @@ import java.util.Objects;
 import ua.meugen.android.levelup.homework6.data.Entry;
 import ua.meugen.android.levelup.homework6.helpers.DouFeedFetchHelper;
 import ua.meugen.android.levelup.homework6.helpers.DouFeedStoreHelper;
+import ua.meugen.android.levelup.homework6.utils.SyncUtil;
 
 public class SyncService extends Service {
 
@@ -76,6 +77,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             final DouFeedStoreHelper storeHelper
                     = new DouFeedStoreHelper(this.resolver);
             storeHelper.store(items, result);
+
+            SyncUtil.updateLastSyncDate(getContext());
         } catch (IOException e) {
             Log.e(TAG, e.getMessage(), e);
             result.stats.numIoExceptions++;

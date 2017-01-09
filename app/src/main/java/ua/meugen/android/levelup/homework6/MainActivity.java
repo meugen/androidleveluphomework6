@@ -2,6 +2,7 @@ package ua.meugen.android.levelup.homework6;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.AlarmManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
@@ -25,15 +26,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import ua.meugen.android.levelup.homework6.providers.RssContent;
+import ua.meugen.android.levelup.homework6.utils.SyncUtil;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>, RssContent,
         AdapterView.OnItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private static final String ACCOUNT_TYPE = "rsscontent.com";
-    private static final String ACCOUNT = "meugen";
 
     private final SyncStatusObserver syncStatusObserver = new SyncStatusObserver() {
         /** Callback invoked with the sync adapter status changes. */
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    private Account account;
     private SimpleCursorAdapter adapter;
     private Menu optionsMenu;
 
@@ -62,10 +60,8 @@ public class MainActivity extends AppCompatActivity
         if (optionsMenu == null) {
             return;
         }
-        final boolean syncActive = ContentResolver.isSyncActive(
-                account, AUTHORITY);
-        final boolean syncPending = ContentResolver.isSyncPending(
-                account, AUTHORITY);
+        final boolean syncActive = SyncUtil.isSyncActive();
+        final boolean syncPending = SyncUtil.isSyncPending();
 
         final MenuItem refreshItem = optionsMenu.findItem(R.id.refresh);
         if (refreshItem != null) {
@@ -82,7 +78,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.account = createSyncAccount();
+        SyncUtil.createSyncAccount(this);
+        SyncUtil.setupAlarm(this);
         final ListView listView = (ListView) findViewById(android.R.id.list);
         this.adapter = new SimpleCursorAdapter(this,
                 R.layout.item, null,
@@ -92,6 +89,7 @@ public class MainActivity extends AppCompatActivity
         listView.setAdapter(this.adapter);
         listView.setOnItemClickListener(this);
 
+        SyncUtil.syncIfNeeded(this);
         getSupportLoaderManager().initLoader(0, null, this);
     }
 
@@ -114,19 +112,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private Account createSyncAccount() {
-        Account newAccount = new Account(ACCOUNT, ACCOUNT_TYPE);
-        final AccountManager manager = (AccountManager) this
-                .getSystemService(ACCOUNT_SERVICE);
-        boolean res = manager.addAccountExplicitly(newAccount, null, null);
-        Log.i(TAG, "" + res);
-        if (res) {
-            ContentResolver.setIsSyncable(newAccount, AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(newAccount, AUTHORITY, true);
-        }
-        return newAccount;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         this.optionsMenu = menu;
@@ -140,17 +125,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(final MenuItem item) {
         final int itemId = item.getItemId();
         if (itemId == R.id.refresh) {
-            refresh();
+            SyncUtil.syncManual(this);
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void refresh() {
-        final Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        getContentResolver().requestSync(account, AUTHORITY, bundle);
     }
 
     @Override
