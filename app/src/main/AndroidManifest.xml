@@ -63,6 +63,10 @@
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
+
+        <receiver android:name=".receivers.StartJobReceiver"
+            android:exported="true"
+            android:enabled="true"/>
     </application>
 
 </manifest>
