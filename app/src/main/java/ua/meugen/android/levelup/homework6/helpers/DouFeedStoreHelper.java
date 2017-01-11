@@ -11,9 +11,12 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import ua.meugen.android.levelup.homework6.data.Entry;
@@ -27,6 +30,9 @@ public final class DouFeedStoreHelper implements RssContent {
 
     private static final String TAG = DouFeedStoreHelper.class.getSimpleName();
 
+    private static final SimpleDateFormat FORMAT = new SimpleDateFormat(
+            "EEE, dd MMM yyyy HH:mm:ss ZZZZ", Locale.ENGLISH);
+
     private final ContentResolver resolver;
 
     public DouFeedStoreHelper(final ContentResolver resolver) {
@@ -39,20 +45,25 @@ public final class DouFeedStoreHelper implements RssContent {
 
             final ArrayList<ContentProviderOperation> operations = new ArrayList<>(entries.size());
             for (Entry entry : entries) {
-                ContentProviderOperation op;
-                if (guids.contains(entry.getGuid())) {
-                    op = ContentProviderOperation.newUpdate(URL_ITEMS)
-                            .withValues(toContentValues(entry))
-                            .withSelection("guid=?", new String[] { entry.getGuid() })
-                            .build();
-                    result.stats.numUpdates++;
-                } else {
-                    op = ContentProviderOperation.newInsert(URL_ITEMS)
-                            .withValues(toContentValues(entry))
-                            .build();
-                    result.stats.numInserts++;
+                try {
+                    ContentProviderOperation op;
+                    if (guids.contains(entry.getGuid())) {
+                        op = ContentProviderOperation.newUpdate(URL_ITEMS)
+                                .withValues(toContentValues(entry))
+                                .withSelection("guid=?", new String[] { entry.getGuid() })
+                                .build();
+                        result.stats.numUpdates++;
+                    } else {
+                        op = ContentProviderOperation.newInsert(URL_ITEMS)
+                                .withValues(toContentValues(entry))
+                                .build();
+                        result.stats.numInserts++;
+                    }
+                    operations.add(op);
+                } catch (ParseException e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    result.stats.numParseExceptions++;
                 }
-                operations.add(op);
             }
             this.resolver.applyBatch("ua.meugen.android.levelup.homework6", operations);
         } catch (Exception e) {
@@ -78,7 +89,7 @@ public final class DouFeedStoreHelper implements RssContent {
         }
     }
 
-    private ContentValues toContentValues(final Entry entry) {
+    private ContentValues toContentValues(final Entry entry) throws ParseException {
         final ContentValues values = new ContentValues();
         values.put("title", entry.getTitle());
         values.put("link", entry.getLink());
@@ -86,6 +97,7 @@ public final class DouFeedStoreHelper implements RssContent {
         values.put("pub_date", entry.getPubDate());
         values.put("creator", entry.getCreator());
         values.put("guid", entry.getGuid());
+        values.put("pub_date_millis", FORMAT.parse(entry.getPubDate()).getTime());
         return values;
     }
 }

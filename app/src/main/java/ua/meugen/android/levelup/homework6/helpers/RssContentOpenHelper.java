@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public final class RssContentOpenHelper extends SQLiteOpenHelper {
 
     private static final String NAME = "rsscontent";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     private static final Pattern PATTERN = Pattern.compile("\\s*([^;]+);");
 

@@ -83,8 +83,8 @@ public class MainActivity extends AppCompatActivity
         final ListView listView = (ListView) findViewById(android.R.id.list);
         this.adapter = new SimpleCursorAdapter(this,
                 R.layout.item, null,
-                new String[] { "title" },
-                new int[] { android.R.id.text1 },
+                new String[] { "title", "creator" },
+                new int[] { android.R.id.text1, android.R.id.text2 },
                 0);
         listView.setAdapter(this.adapter);
         listView.setOnItemClickListener(this);
@@ -143,7 +143,8 @@ public class MainActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
         final CursorLoader loader = new CursorLoader(MainActivity.this);
         loader.setUri(URL_ITEMS);
-        loader.setProjection(new String[] { "id _id", "title" });
+        loader.setProjection(new String[] { "id _id", "title", "creator" });
+        loader.setSortOrder("pub_date_millis desc");
         return loader;
     }
 

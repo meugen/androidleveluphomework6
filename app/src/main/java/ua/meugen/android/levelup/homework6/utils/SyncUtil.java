@@ -75,7 +75,7 @@ public final class SyncUtil implements RssContent {
         Log.i(TAG, "" + res);
         if (res) {
             ContentResolver.setIsSyncable(account, AUTHORITY, 1);
-            ContentResolver.setSyncAutomatically(account, AUTHORITY, true);
+            ContentResolver.setSyncAutomatically(account, AUTHORITY, false);
         }
     }
 
