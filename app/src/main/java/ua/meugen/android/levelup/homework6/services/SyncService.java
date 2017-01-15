@@ -54,11 +54,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String TAG = SyncAdapter.class.getSimpleName();
     private static final String URL_STRING = "https://dou.ua/feed/";
 
-    private final ContentResolver resolver;
-
     SyncAdapter(final Context context) {
         super(context, true);
-        this.resolver = context.getContentResolver();
     }
 
     @Override
@@ -75,7 +72,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.i(TAG, items.toString());
 
             final DouFeedStoreHelper storeHelper
-                    = new DouFeedStoreHelper(this.resolver);
+                    = new DouFeedStoreHelper(client);
             storeHelper.store(items, result);
 
             SyncUtil.updateLastSyncDate(getContext());

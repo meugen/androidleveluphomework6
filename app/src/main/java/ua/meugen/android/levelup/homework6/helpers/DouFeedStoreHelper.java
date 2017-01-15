@@ -33,10 +33,10 @@ public final class DouFeedStoreHelper implements RssContent {
     private static final SimpleDateFormat FORMAT = new SimpleDateFormat(
             "EEE, dd MMM yyyy HH:mm:ss ZZZZ", Locale.ENGLISH);
 
-    private final ContentResolver resolver;
+    private final ContentProviderClient client;
 
-    public DouFeedStoreHelper(final ContentResolver resolver) {
-        this.resolver = resolver;
+    public DouFeedStoreHelper(final ContentProviderClient client) {
+        this.client = client;
     }
 
     public void store(final List<Entry> entries, final SyncResult result) {
@@ -65,7 +65,7 @@ public final class DouFeedStoreHelper implements RssContent {
                     result.stats.numParseExceptions++;
                 }
             }
-            this.resolver.applyBatch("ua.meugen.android.levelup.homework6", operations);
+            this.client.applyBatch(operations);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
             result.stats.numIoExceptions++;
@@ -75,7 +75,7 @@ public final class DouFeedStoreHelper implements RssContent {
     private Set<String> fetchGuids() throws RemoteException {
         Cursor cursor = null;
         try {
-            cursor = this.resolver.query(URL_GUIDS, null, null, null, null);
+            cursor = this.client.query(URL_GUIDS, null, null, null, null);
 
             final Set<String> result = new HashSet<>();
             while (cursor.moveToNext()) {
